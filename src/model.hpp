@@ -6,10 +6,13 @@
 #include <vector>
 #include <algorithm>
 #include <random>
-#include <math>
+#include <cmath>
 #include <numeric>
+#include  <individual.h>
+#include  <IterableBitset.h>
+#include  <CategoricalVariable.h>
 
-using individual_index_t = individual::IterableBitset<uint64_t>;
+using individual_index_t = IterableBitset<uint64_t>;
 
 class Model {
 private:
@@ -20,16 +23,20 @@ private:
   double gamma;
   double R0;
   double beta = R0 * gamma;
-  individual::CategoricalVariable health_;
-  individual::TargetedEvent recovery_event_;
+  CategoricalVariable health_;
+  TargetedEvent recovery_event_;
 
 public:
-  SIRModel(individual::CategoricalVariable health,
-           individual::TargetedEvent recovery_event, size_t n) : health_(
-      health),
-                                                                 recovery_event_(
-                                                                     recovery_event),
-                                                                 N(n) {
+  Model(CategoricalVariable
+  health,
+  TargetedEvent recovery_event, size_t
+  n) :
+
+  health_ (
+  health),
+  recovery_event_(
+      recovery_event),
+  N(n) {
     dt = 0.1;
     tmax = 100;
     steps = tmax / dt;

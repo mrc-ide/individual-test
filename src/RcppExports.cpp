@@ -11,7 +11,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // create_model
-Rcpp::XPtr<Model> create_model();
+SEXP create_model();
 RcppExport SEXP _individualtest_create_model() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -21,11 +21,11 @@ BEGIN_RCPP
 END_RCPP
 }
 // run_model
-void run_model(const Rcpp::XPtr<Model> m);
+void run_model(const SEXP m);
 RcppExport SEXP _individualtest_run_model(SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::XPtr<Model> >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const SEXP >::type m(mSEXP);
     run_model(m);
     return R_NilValue;
 END_RCPP

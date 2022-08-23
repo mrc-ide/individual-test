@@ -1,7 +1,7 @@
 #include "model.hpp"
 
 //[[Rcpp::export]]
-Rcpp::XPtr<Model> create_model() {
+SEXP create_model() {
   N = 1e3;
   I0 = 5;
   S0 = N - I0;
@@ -26,6 +26,7 @@ Rcpp::XPtr<Model> create_model() {
 }
 
 //[[Rcpp::export]]
-void run_model(const Rcpp::XPtr<Model> m) {
-  m->run_simulation();
+void run_model(const SEXP m) {
+  auto mod = Rcpp::as<Model>(m);
+  mod->run_simulation();
 }
