@@ -16,36 +16,49 @@ using individual_index_t = IterableBitset<uint64_t>;
 
 class Model {
 private:
-  size_t N;
-  double dt;
-  size_t tmax;
-  size_t steps;
-  double gamma;
-  double R0;
-  double beta = R0 * gamma;
+  size_t N_;
+  double dt_;
+  size_t tmax_;
+  size_t steps_;
+  size_t size_;
+  double gamma_;
+  double R0_;
+  double beta_;
   CategoricalVariable health_;
   TargetedEvent recovery_event_;
+  std::vector<size_t> counts_;
 
 public:
   Model(const std::vector<std::string>& health_states,
     const std::vector<std::string>& health_states_t0,
-    size_t n) :
+    size_t n,
+    double dt,
+    size_t end_time,
+    double gamma,
+    double R0) :
   health_(health_states, health_states_t0),
-  recovery_event_(n) {
-    N = n;
-    dt = 0.1;
-    tmax = 100;
-    steps = tmax / dt;
-    gamma = 0.1;
-    R0 = 2.5;
-    beta = R0 * gamma;
+  recovery_event_(n),
+  counts_((end_time / dt) * health_states.size()) {
+    N_ = n;
+    dt_ = dt;
+    tmax_ = end_time;
+    steps_ = tmax_ / dt_;
+    gamma_ = gamma;
+    R0_ = R0;
+    beta_ = R0 * gamma;
+    size_ = health_states.size();
+  }
+
+  double sample_prob(size_t I) {
+    auto foi = beta_ * I / N_;
+    return R::pexp(foi * dt_, 1, true, false);
   }
 
   void infection_process(double t) {
     auto I = health_.get_size_of("I");
-    auto foi = beta * I / N;
+    auto foi = beta_ * I / N_;
     individual_index_t S = health_.get_index_of("S");
-    bitset_sample(S, R::pexp(foi * dt, 1, true, false));
+    bitset_sample(S, R::pexp(foi * dt_, 1, true, false));
     health_.queue_update("I", S);
   }
 
@@ -60,28 +73,48 @@ public:
       bitset_sample_internal(b, rate);
   }
 
-  void recovery_process() {
+  void recovery_process(size_t t) {
     individual_index_t I = health_.get_index_of("I");
     individual_index_t already_scheduled = recovery_event_.get_scheduled();
-    (I) &= (already_scheduled.inverse());
-    auto rec_times = Rcpp::rgeom(I.size(), R::pexp(gamma * dt, 1, true, false));
+    I &= !(already_scheduled);
+    auto rec_times = Rcpp::rgeom(I.size(), R::pexp(gamma_ * dt_, 1, true, false));
     std::vector<double> vec_rec_times(rec_times.begin(), rec_times.end());
+    for (size_t i = 0; i < I.size(); ++i) {
+        vec_rec_times[i] = vec_rec_times[i] + 1;
+    }
     recovery_event_.schedule(I, vec_rec_times);
   }
 
-  void run_simulation() {
-//    for (size_t t = 0; t < steps; ++t) {
-//        infection_process(t);
-//        recovery_process(t);
-//        if (recovery_event->should_trigger()) {
-//          auto target = new individual_index_t(recovery_event->current_target());
-//          recovery_listener(t, target);
-//        }
-//        health_->update();
-//        recovery_event->resize();
-//        health_->resize();
-//        recovery_event->tick();
-//    }
+  std::vector<size_t> run_simulation() {
+    for (size_t t = 0; t < steps_; ++t) {
+        // execute processes
+        infection_process(t);
+        recovery_process(t);
+
+        // process events
+        if (recovery_event_.should_trigger()) {
+          auto target = new individual_index_t(recovery_event_.current_target());
+          recovery_listener(t, *target);
+        }
+
+        // update variables
+        health_.update();
+
+        // resize events
+        recovery_event_.resize();
+
+        // resize variables
+        health_.resize();
+
+        // events tick
+        recovery_event_.tick();
+
+        counts_[(t * size_)] = health_.get_index_of("S").size();
+        counts_[(t * size_) + 1] = health_.get_index_of("I").size();
+        counts_[(t * size_) + 2] = health_.get_index_of("R").size();
+    }
+
+    return counts_;
   }
 };
 
