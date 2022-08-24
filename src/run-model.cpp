@@ -1,14 +1,22 @@
 #include "model.hpp"
+#include <iostream>
+#include <random>
+#include <string>
+#include <iterator>
+#include <algorithm>
+#include  <individual.h>
+#include  <IterableBitset.h>
+#include  <CategoricalVariable.h>
 
 //[[Rcpp::export]]
-SEXP create_model() {
-  N = 1e3;
-  I0 = 5;
-  S0 = N - I0;
+void run_model() {
+  size_t N = 1e3;
+  size_t I0 = 5;
+  size_t S0 = N - I0;
   std::vector<std::string> health_states = {"S", "I", "R"};
   std::vector<std::string> health_states_t0 = std::vector<std::string>(N);
-  for (size_t i; i < N, i++) {
-    health_states_t0[i] = "N"
+  for (size_t i; i < N; i++) {
+    health_states_t0[i] = "N";
   }
   std::vector<int> ivec(100);
   std::vector<int> out;
@@ -17,16 +25,9 @@ SEXP create_model() {
            std::back_inserter(out),
            I0, std::mt19937{std::random_device{}()});
 
-  for (size_t i; i < I0, i++) {
-    health_states_t0[out[i]] = "I"
+  for (size_t i; i < I0; i++) {
+    health_states_t0[out[i]] = "I";
   }
-  auto health = new individual::CategoricalVariable(health_states, out);
-  auto recovery_event = individual::TargetedEvent(N);
-  return Rcpp::XPtr<Model>(new Model(health, recovery_event), true);
-}
-
-//[[Rcpp::export]]
-void run_model(const SEXP m) {
-  auto mod = Rcpp::as<Model>(m);
-  mod->run_simulation();
+  auto model = new Model(health_states, health_states_t0, N);
+  model->run_simulation();
 }

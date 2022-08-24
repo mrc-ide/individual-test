@@ -27,16 +27,12 @@ private:
   TargetedEvent recovery_event_;
 
 public:
-  Model(CategoricalVariable
-  health,
-  TargetedEvent recovery_event, size_t
-  n) :
-
-  health_ (
-  health),
-  recovery_event_(
-      recovery_event),
-  N(n) {
+  Model(const std::vector<std::string>& health_states,
+    const std::vector<std::string>& health_states_t0,
+    size_t n) :
+  health_(health_states, health_states_t0),
+  recovery_event_(n) {
+    N = n;
     dt = 0.1;
     tmax = 100;
     steps = tmax / dt;
@@ -49,22 +45,28 @@ public:
     auto I = health_.get_size_of("I");
     auto foi = beta * I / N;
     individual_index_t S = health_.get_index_of("S");
-    S.sample(R::pexp(foi * dt, 1, true, false));
-    health_.queue_update("I", *S)
+    bitset_sample(S, R::pexp(foi * dt, 1, true, false));
+    health_.queue_update("I", S);
   }
 
   void recovery_listener(double t, const individual_index_t &target) {
     health_.queue_update("R", target);
   }
 
+  void bitset_sample(
+      individual_index_t b,
+      double rate
+      ) {
+      bitset_sample_internal(b, rate);
+  }
+
   void recovery_process() {
     individual_index_t I = health_.get_index_of("I");
     individual_index_t already_scheduled = recovery_event_.get_scheduled();
-    (*I) &= (*already_scheduled->inverse());
-    std::vector<double> rec_times = rgeom(I.size(),
-                                          R::pexp(gamma * dt, 1, true,
-                                                  false) + 1;
-    recovery_event_.schedule(rec_times);
+    (I) &= (already_scheduled.inverse());
+    auto rec_times = Rcpp::rgeom(I.size(), R::pexp(gamma * dt, 1, true, false));
+    std::vector<double> vec_rec_times(rec_times.begin(), rec_times.end());
+    recovery_event_.schedule(I, vec_rec_times);
   }
 
   void run_simulation() {

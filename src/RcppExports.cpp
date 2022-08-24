@@ -10,30 +10,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// create_model
-SEXP create_model();
-RcppExport SEXP _individualtest_create_model() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(create_model());
-    return rcpp_result_gen;
-END_RCPP
-}
 // run_model
-void run_model(const SEXP m);
-RcppExport SEXP _individualtest_run_model(SEXP mSEXP) {
+void run_model();
+RcppExport SEXP _individualtest_run_model() {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP >::type m(mSEXP);
-    run_model(m);
+    run_model();
     return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_individualtest_create_model", (DL_FUNC) &_individualtest_create_model, 0},
-    {"_individualtest_run_model", (DL_FUNC) &_individualtest_run_model, 1},
+    {"_individualtest_run_model", (DL_FUNC) &_individualtest_run_model, 0},
     {NULL, NULL, 0}
 };
 
