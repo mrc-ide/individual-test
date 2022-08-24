@@ -26,26 +26,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// model_prob
-double model_prob(size_t N, size_t I0, double dt, size_t end_time, double gamma, double R0);
-RcppExport SEXP _individualtest_model_prob(SEXP NSEXP, SEXP I0SEXP, SEXP dtSEXP, SEXP end_timeSEXP, SEXP gammaSEXP, SEXP R0SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< size_t >::type N(NSEXP);
-    Rcpp::traits::input_parameter< size_t >::type I0(I0SEXP);
-    Rcpp::traits::input_parameter< double >::type dt(dtSEXP);
-    Rcpp::traits::input_parameter< size_t >::type end_time(end_timeSEXP);
-    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
-    Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
-    rcpp_result_gen = Rcpp::wrap(model_prob(N, I0, dt, end_time, gamma, R0));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_individualtest_run_model", (DL_FUNC) &_individualtest_run_model, 6},
-    {"_individualtest_model_prob", (DL_FUNC) &_individualtest_model_prob, 6},
     {NULL, NULL, 0}
 };
 

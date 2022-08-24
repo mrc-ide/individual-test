@@ -49,11 +49,6 @@ public:
     size_ = health_states.size();
   }
 
-  double sample_prob(size_t I) {
-    auto foi = beta_ * I / N_;
-    return R::pexp(foi * dt_, 1, true, false);
-  }
-
   void infection_process(double t) {
     auto I = health_.get_size_of("I");
     auto foi = beta_ * I / N_;
@@ -67,7 +62,7 @@ public:
   }
 
   void bitset_sample(
-      individual_index_t b,
+      individual_index_t& b,
       double rate
       ) {
       bitset_sample_internal(b, rate);

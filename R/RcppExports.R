@@ -5,7 +5,3 @@ run_model <- function(N, I0, dt, end_time, gamma, R0) {
     .Call(`_individualtest_run_model`, N, I0, dt, end_time, gamma, R0)
 }
 
-model_prob <- function(N, I0, dt, end_time, gamma, R0) {
-    .Call(`_individualtest_model_prob`, N, I0, dt, end_time, gamma, R0)
-}
-
