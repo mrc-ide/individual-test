@@ -65,9 +65,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// run_model
-std::vector<size_t> run_model(size_t N, size_t I0, double dt, size_t end_time, double gamma, double R0, double birth_rate, double death_rate);
-RcppExport SEXP _individualtest_run_model(SEXP NSEXP, SEXP I0SEXP, SEXP dtSEXP, SEXP end_timeSEXP, SEXP gammaSEXP, SEXP R0SEXP, SEXP birth_rateSEXP, SEXP death_rateSEXP) {
+// run_model_open
+std::vector<size_t> run_model_open(size_t N, size_t I0, double dt, size_t end_time, double gamma, double R0, double birth_rate, double death_rate);
+RcppExport SEXP _individualtest_run_model_open(SEXP NSEXP, SEXP I0SEXP, SEXP dtSEXP, SEXP end_timeSEXP, SEXP gammaSEXP, SEXP R0SEXP, SEXP birth_rateSEXP, SEXP death_rateSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -79,7 +79,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
     Rcpp::traits::input_parameter< double >::type birth_rate(birth_rateSEXP);
     Rcpp::traits::input_parameter< double >::type death_rate(death_rateSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_model(N, I0, dt, end_time, gamma, R0, birth_rate, death_rate));
+    rcpp_result_gen = Rcpp::wrap(run_model_open(N, I0, dt, end_time, gamma, R0, birth_rate, death_rate));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_model_closed
+std::vector<size_t> run_model_closed(size_t N, size_t I0, double dt, size_t end_time, double gamma, double R0);
+RcppExport SEXP _individualtest_run_model_closed(SEXP NSEXP, SEXP I0SEXP, SEXP dtSEXP, SEXP end_timeSEXP, SEXP gammaSEXP, SEXP R0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< size_t >::type N(NSEXP);
+    Rcpp::traits::input_parameter< size_t >::type I0(I0SEXP);
+    Rcpp::traits::input_parameter< double >::type dt(dtSEXP);
+    Rcpp::traits::input_parameter< size_t >::type end_time(end_timeSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
+    rcpp_result_gen = Rcpp::wrap(run_model_closed(N, I0, dt, end_time, gamma, R0));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -89,7 +105,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_individualtest_infection_process", (DL_FUNC) &_individualtest_infection_process, 4},
     {"_individualtest_recovery_process", (DL_FUNC) &_individualtest_recovery_process, 4},
     {"_individualtest_death_process", (DL_FUNC) &_individualtest_death_process, 3},
-    {"_individualtest_run_model", (DL_FUNC) &_individualtest_run_model, 8},
+    {"_individualtest_run_model_open", (DL_FUNC) &_individualtest_run_model_open, 8},
+    {"_individualtest_run_model_closed", (DL_FUNC) &_individualtest_run_model_closed, 6},
     {NULL, NULL, 0}
 };
 

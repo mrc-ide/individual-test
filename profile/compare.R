@@ -1,8 +1,3 @@
-library(individual)
-source("profile/cModel.R")
-source("profile/rModel.R")
-source("profile/rModelWithPrefabs.R")
-
 N <- 1e3
 I0 <- 5
 S0 <- N - I0
@@ -33,6 +28,15 @@ death_rate <- .001
 #
 # matlines(x = states[[1]] * dt, y = c_states)
 
+# closed SIR
+bench::mark(
+  run_C_model(N, I0, dt, tmax, gamma, R0),
+  run_R_model(N, I0, dt, tmax, gamma, R0),
+  run_R_model_with_prefabs(N, I0, dt, tmax, gamma, R0),
+  check = FALSE
+)
+
+# open SIR
 bench::mark(
   run_C_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
   run_R_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),

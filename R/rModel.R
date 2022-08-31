@@ -1,4 +1,4 @@
-run_R_model <- function(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate) {
+run_R_model <- function(N, I0, dt, tmax, gamma, R0, birth_rate = NULL, death_rate = NULL) {
   steps <- tmax / dt
   beta <- R0 * gamma
   health_states_t0 <- rep("S", N)
@@ -35,24 +35,29 @@ run_R_model <- function(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate) {
     categories = health_states
   )
 
-  birth_process <- function(t) {
-    n_births <- rpois(1, birth_rate / dt)
-    health$queue_extend(rep('S', n_births))
-    recovery_event$queue_extend(n_births)
-  }
+  processes <- c(infection_process, recovery_process,
+                 health_render_process)
 
-  death_process <- function(t) {
-    pop_size <- health$size()
-    deaths <- sample.int(pop_size, rbinom(1, pop_size, min(death_rate / dt, 1)))
-    health$queue_shrink(deaths)
-    recovery_event$queue_shrink(deaths)
+  if (!is.null(birth_rate)){
+    birth_process <- function(t) {
+      n_births <- rpois(1, birth_rate / dt)
+      health$queue_extend(rep('S', n_births))
+      recovery_event$queue_extend(n_births)
+    }
+
+    death_process <- function(t) {
+      pop_size <- health$size()
+      deaths <- sample.int(pop_size, rbinom(1, pop_size, min(death_rate / dt, 1)))
+      health$queue_shrink(deaths)
+      recovery_event$queue_shrink(deaths)
+    }
+    processes <- c(processes, birth_process, death_process)
   }
 
   individual::simulation_loop(
     variables = list(health),
     events = list(recovery_event),
-    processes = list(infection_process, recovery_process,
-                     health_render_process, birth_process, death_process),
+    processes = as.list(processes),
    timesteps = steps
   )
 

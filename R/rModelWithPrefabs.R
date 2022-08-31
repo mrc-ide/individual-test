@@ -1,8 +1,10 @@
-run_R_model_with_prefabs <- function(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate) {
+run_R_model_with_prefabs <- function(N, I0, dt, tmax, gamma, R0, birth_rate = NULL, death_rate = NULL) {
   steps <- tmax / dt
   beta <- R0 * gamma
-  birth_rate <- birth_rate / dt
-  death_rate <- death_rate / dt
+  if (!is.null(birth_rate)) {
+    birth_rate <- birth_rate / dt
+    death_rate <- death_rate / dt
+  }
   health_states_t0 <- rep("S", N)
   health_states_t0[sample.int(n = N, size = I0)] <- "I"
   health <- individual::CategoricalVariable$new(categories = health_states,
@@ -21,14 +23,19 @@ run_R_model_with_prefabs <- function(N, I0, dt, tmax, gamma, R0, birth_rate, dea
     categories = health_states
   )
 
+  processes <- c(infection_process(health$.variable, beta, N, dt),
+                    recovery_process(health$.variable, recovery_event$.event, gamma, dt),
+                    health_render_process)
+
+  if (!is.null(birth_rate)) {
+    processes <- c(processes, birth_process(health$.variable, recovery_event$.event, birth_rate),
+                         death_process(health$.variable, recovery_event$.event, death_rate))
+  }
+
   individual::simulation_loop(
     variables = list(health),
     events = list(recovery_event),
-    processes = list(infection_process(health$.variable, beta, N, dt),
-                     recovery_process(health$.variable, recovery_event$.event, gamma, dt),
-                     health_render_process,
-                     birth_process(health$.variable, recovery_event$.event, birth_rate),
-                     death_process(health$.variable, recovery_event$.event, death_rate)),
+    processes = as.list(processes),
     timesteps = steps
   )
 

@@ -17,7 +17,11 @@ death_process <- function(variable, event, death_rate) {
     .Call(`_individualtest_death_process`, variable, event, death_rate)
 }
 
-run_model <- function(N, I0, dt, end_time, gamma, R0, birth_rate, death_rate) {
-    .Call(`_individualtest_run_model`, N, I0, dt, end_time, gamma, R0, birth_rate, death_rate)
+run_model_open <- function(N, I0, dt, end_time, gamma, R0, birth_rate, death_rate) {
+    .Call(`_individualtest_run_model_open`, N, I0, dt, end_time, gamma, R0, birth_rate, death_rate)
+}
+
+run_model_closed <- function(N, I0, dt, end_time, gamma, R0) {
+    .Call(`_individualtest_run_model_closed`, N, I0, dt, end_time, gamma, R0)
 }
 
