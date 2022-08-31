@@ -1,8 +1,6 @@
 library(individual)
-library(profvis)
 source("profile/cModel.R")
 source("profile/rModel.R")
-source("profile/rModelWithPrefabs.R")
 
 N <- 1e3
 I0 <- 5
@@ -17,9 +15,9 @@ health_states <- c("S", "I", "R")
 birth_rate <- 2
 death_rate <- .001
 
-states <- run_R_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate)
-c_states <- run_C_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate)
-
+# states <- run_R_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate)
+# c_states <- run_C_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate)
+#
 # health_cols <- c("royalblue3", "firebrick3", "darkorchid3")
 # matplot(
 #   x = states[[1]] * dt, y = states[-1],
@@ -34,17 +32,8 @@ c_states <- run_C_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate)
 #
 # matlines(x = states[[1]] * dt, y = c_states)
 
-profvis({
-  run_C_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate)
-  run_R_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate)
-  run_R_model_with_prefabs(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate)
-})
-
-
 bench::mark(
   run_C_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
   run_R_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
-  #run_R_model_with_prefabs(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
   check = FALSE
 )
-

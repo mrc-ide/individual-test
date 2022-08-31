@@ -94,10 +94,7 @@ public:
 
   void birth_process(size_t t) {
     auto n_births = R::rpois(birth_rate_ / dt_);
-    std::vector<std::string> new_s = std::vector<std::string>(n_births);
-    for (size_t i = 0; i < n_births; i++) {
-      new_s[i] = "S";
-    }
+    std::vector<std::string> new_s = std::vector<std::string>(n_births, "S");
     health_.queue_extend(new_s);
     recovery_event_.queue_extend(n_births);
   }

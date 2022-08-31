@@ -1,4 +1,4 @@
-#include "model.cpp"
+#include "model.hpp"
 #include <iostream>
 #include <random>
 #include <string>
