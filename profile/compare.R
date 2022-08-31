@@ -1,6 +1,7 @@
 library(individual)
 source("profile/cModel.R")
 source("profile/rModel.R")
+source("profile/rModelWithPrefabs.R")
 
 N <- 1e3
 I0 <- 5
@@ -35,5 +36,6 @@ death_rate <- .001
 bench::mark(
   run_C_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
   run_R_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
+  run_R_model_with_prefabs(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
   check = FALSE
 )
