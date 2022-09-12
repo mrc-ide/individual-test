@@ -29,6 +29,7 @@ private:
   CategoricalVariable health_;
   TargetedEvent recovery_event_;
   std::vector<size_t> counts_;
+  std::vector<size_t> deaths_;
 
 public:
   Model(const std::vector<std::string>& health_states,
@@ -42,7 +43,8 @@ public:
     double death_rate) :
   health_(health_states, health_states_t0),
   recovery_event_(n),
-  counts_((end_time / dt) * health_states.size()) {
+  counts_((end_time / dt) * health_states.size()),
+  deaths_(n) {
     N_ = n;
     dt_ = dt;
     tmax_ = end_time;
@@ -53,6 +55,9 @@ public:
     birth_rate_ = birth_rate;
     death_rate_ = death_rate;
     size_ = health_states.size();
+    for (size_t i = 0; i < n; ++i) {
+        deaths_[i] = i;
+    }
   }
 
   void infection_process(double t) {
@@ -101,19 +106,20 @@ public:
 
   void death_process(size_t t) {
     size_t pop_size = health_.size();
+    deaths_.resize(pop_size);
+    for (size_t i = 0; i < pop_size; ++i) {
+        deaths_[i] = i;
+    }
     double dr = death_rate_ / dt_;
     if (dr > 1) {
       dr = 1;
     }
     int n_deaths = R::rbinom(pop_size, dr);
-    std::vector<size_t> ivec(pop_size);
-    std::vector<size_t> out;
-    std::iota(ivec.begin(), ivec.end(), 0); // ivec will become: [0..n]
-    std::sample(ivec.begin(), ivec.end(),
-             std::back_inserter(out),
-             n_deaths, std::mt19937{std::random_device{}()});
-    health_.queue_shrink(out);
-    recovery_event_.queue_shrink(out);
+    std::random_shuffle(deaths_.begin(), deaths_.end());
+    deaths_.resize(n_deaths);
+
+    health_.queue_shrink(deaths_);
+    recovery_event_.queue_shrink(deaths_);
   }
 
   void run_simulation() {
