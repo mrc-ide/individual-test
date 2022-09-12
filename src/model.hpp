@@ -55,9 +55,6 @@ public:
     birth_rate_ = birth_rate;
     death_rate_ = death_rate;
     size_ = health_states.size();
-    for (size_t i = 0; i < n; ++i) {
-        deaths_[i] = i;
-    }
   }
 
   void infection_process(double t) {
@@ -107,15 +104,18 @@ public:
   void death_process(size_t t) {
     size_t pop_size = health_.size();
     deaths_.resize(pop_size);
-    for (size_t i = 0; i < pop_size; ++i) {
-        deaths_[i] = i;
-    }
+    std::iota(deaths_.begin(), deaths_.end(), 0);
     double dr = death_rate_ / dt_;
     if (dr > 1) {
       dr = 1;
     }
     int n_deaths = R::rbinom(pop_size, dr);
-    std::random_shuffle(deaths_.begin(), deaths_.end());
+    for (size_t i = 0; i < n_deaths - 1; ++i) {
+       size_t j = floor(R::unif_rand() * (pop_size - i)) + i;
+       deaths_[i] = deaths_[j];
+       deaths_[j] = deaths_[i];
+    }
+
     deaths_.resize(n_deaths);
 
     health_.queue_shrink(deaths_);
