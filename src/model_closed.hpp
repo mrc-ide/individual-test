@@ -1,5 +1,5 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MODEL_CLOSED_H
+#define MODEL_CLOSED_H
 
 #include <R.h>
 #include <Rcpp.h>
@@ -14,7 +14,7 @@
 
 using individual_index_t = IterableBitset<uint64_t>;
 
-class Model {
+class ModelClosed {
 private:
   size_t N_;
   double dt_;
@@ -31,15 +31,13 @@ private:
   std::vector<size_t> counts_;
 
 public:
-  Model(const std::vector<std::string>& health_states,
+  ModelClosed(const std::vector<std::string>& health_states,
     const std::vector<std::string>& health_states_t0,
     size_t n,
     double dt,
     size_t end_time,
     double gamma,
-    double R0,
-    double birth_rate,
-    double death_rate) :
+    double R0) :
   health_(health_states, health_states_t0),
   recovery_event_(n),
   counts_((end_time / dt) * health_states.size()) {
@@ -50,8 +48,6 @@ public:
     gamma_ = gamma;
     R0_ = R0;
     beta_ = R0 * gamma;
-    birth_rate_ = birth_rate;
-    death_rate_ = death_rate;
     size_ = health_states.size();
   }
 
@@ -92,38 +88,12 @@ public:
     counts_[(t * size_) + 2] = health_.get_index_of("R").size();
   }
 
-  void birth_process(size_t t) {
-    auto n_births = R::rpois(birth_rate_ / dt_);
-    std::vector<std::string> new_s = std::vector<std::string>(n_births, "S");
-    health_.queue_extend(new_s);
-    recovery_event_.queue_extend(n_births);
-  }
-
-  void death_process(size_t t) {
-    size_t pop_size = health_.size();
-    double dr = death_rate_ / dt_;
-    if (dr > 1) {
-      dr = 1;
-    }
-    int n_deaths = R::rbinom(pop_size, dr);
-    std::vector<size_t> ivec(pop_size);
-    std::vector<size_t> out;
-    std::iota(ivec.begin(), ivec.end(), 0); // ivec will become: [0..n]
-    std::sample(ivec.begin(), ivec.end(),
-             std::back_inserter(out),
-             n_deaths, std::mt19937{std::random_device{}()});
-    health_.queue_shrink(out);
-    recovery_event_.queue_shrink(out);
-  }
-
   void run_simulation() {
     for (size_t t = 0; t < steps_; ++t) {
         // execute processes
         infection_process(t);
         recovery_process(t);
         render_process(t);
-        birth_process(t);
-        death_process(t);
 
         // process events
         if (recovery_event_.should_trigger()) {

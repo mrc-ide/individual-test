@@ -1,0 +1,55 @@
+---
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(dplyr)
+devtools::load_all()
+```
+## Testing performance of the `individual` package
+This repo uses the SIR model with changing population described in the tutorial [here](https://mrc-ide.github.io/individual/articles/Tutorial.html) as an example for benchmarking performance of `individual` against pure C++ code.
+
+We compare performance of the R model against 1. a model written entirely in C++ using the C++ components of `individual` and 2. an `individual` R model that uses custom "prefab" C++ processes.
+
+### Closed SIR Model
+```{r closed-benchmark, echo=FALSE}
+N <- 1e3
+I0 <- 5
+S0 <- N - I0
+dt <- 0.1
+tmax <- 100
+
+gamma <- 1 / 10
+R0 <- 2.5
+health_states <- c("S", "I", "R")
+
+bm <- bench::mark(
+  run_R_model(N, I0, dt, tmax, gamma, R0),
+  run_C_model(N, I0, dt, tmax, gamma, R0),
+  run_R_model_with_prefabs(N, I0, dt, tmax, gamma, R0),
+  check = FALSE
+)
+
+data.frame(model_version = c("R", "C", "Prefab"),
+           median_time_seconds = as.numeric(bm$median),
+           speedup = signif(as.numeric(bm$median[[1]]) / as.numeric(bm$median), 2))
+```
+
+### Open SIR Model
+```{r open-benchmark, echo=FALSE}
+
+birth_rate <- 2
+death_rate <- .001
+
+bm <- bench::mark(
+  run_R_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
+  run_C_model(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
+  run_R_model_with_prefabs(N, I0, dt, tmax, gamma, R0, birth_rate, death_rate),
+  check = FALSE
+)
+
+data.frame(model_version = c("R", "C", "Prefab"),
+           median_time_seconds = as.numeric(bm$median),
+           speedup = signif(as.numeric(bm$median[[1]]) / as.numeric(bm$median), 2))
+```
