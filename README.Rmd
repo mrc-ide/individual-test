@@ -64,9 +64,11 @@ data.frame(model_version = c("R", "C", "Prefab"),
     graphviz
    ```
 
-2. install `pprof`:
+2. Install `pprof`:
    `go install github.com/google/pprof@latest`
-3. install this package:
+3. Install this package:
    `R CMD INSTALL .`
-4. run the profiling script:
+4. Run the profiling script:
    `./profile/run_profiler.sh`
+5. Examine the outputs using [pprof](https://github.com/google/pprof). The web interface is probably the best way:
+   `pprof -http=localhost:5050 profile.log`

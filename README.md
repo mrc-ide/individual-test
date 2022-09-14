@@ -14,16 +14,16 @@ entirely in C++ using the C++ components of `individual` and 2. an
 ### Closed SIR Model
 
     ##   model_version median_time_seconds speedup
-    ## 1             R          0.59080680     1.0
-    ## 2             C          0.02948761    20.0
-    ## 3        Prefab          0.18778400     3.1
+    ## 1             R          0.66823413     1.0
+    ## 2             C          0.03069129    22.0
+    ## 3        Prefab          0.20348917     3.3
 
 ### Open SIR Model
 
     ##   model_version median_time_seconds speedup
-    ## 1             R           1.1542080     1.0
-    ## 2             C           0.3327583     3.5
-    ## 3        Prefab           0.6385800     1.8
+    ## 1             R           1.3776422     1.0
+    ## 2             C           0.3273255     4.2
+    ## 3        Prefab           0.6290169     2.2
 
 Profiling c++ code
 ------------------
@@ -36,8 +36,12 @@ Profiling c++ code
          golang-go \
          graphviz
 
-2.  install `pprof`: `go install github.com/google/pprof@latest`
+2.  Install `pprof`: `go install github.com/google/pprof@latest`
 
-3.  install this package: `R CMD INSTALL .`
+3.  Install this package: `R CMD INSTALL .`
 
-4.  run the profiling script: `./profile/run_profiler.sh`
+4.  Run the profiling script: `./profile/run_profiler.sh`
+
+5.  Examine the outputs using [pprof](https://github.com/google/pprof).
+    The web interface is probably the best way:
+    `pprof -http=localhost:5050 profile.log`
