@@ -53,3 +53,20 @@ data.frame(model_version = c("R", "C", "Prefab"),
            median_time_seconds = as.numeric(bm$median),
            speedup = signif(as.numeric(bm$median[[1]]) / as.numeric(bm$median), 2))
 ```
+
+## Profiling c++ code
+1. install system deps:
+   ```{bash eval=FALSE}
+    sudo apt install \
+    libgoogle-perftools-dev \
+    libprotoc-dev libprotobuf-dev protobuf-compiler \
+    golang-go \
+    graphviz
+   ```
+
+2. install `pprof`:
+   `go install github.com/google/pprof@latest`
+3. install this package:
+   `R CMD INSTALL .`
+4. run the profiling script:
+   `./profile/run_profiler.sh`
