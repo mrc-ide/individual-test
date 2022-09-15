@@ -53,3 +53,22 @@ data.frame(model_version = c("R", "C", "Prefab"),
            median_time_seconds = as.numeric(bm$median),
            speedup = signif(as.numeric(bm$median[[1]]) / as.numeric(bm$median), 2))
 ```
+
+## Profiling c++ code
+1. install system deps:
+   ```{bash eval=FALSE}
+    sudo apt install \
+    libgoogle-perftools-dev \
+    libprotoc-dev libprotobuf-dev protobuf-compiler \
+    golang-go \
+    graphviz
+   ```
+
+2. Install `pprof`:
+   `go install github.com/google/pprof@latest`
+3. Install this package:
+   `R CMD INSTALL .`
+4. Run the profiling script:
+   `./profile/run_profiler.sh`
+5. Examine the outputs using [pprof](https://github.com/google/pprof). The web interface is probably the best way:
+   `pprof -http=localhost:5050 profile.log`
